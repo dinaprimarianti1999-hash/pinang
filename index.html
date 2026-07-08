@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Panjat Pinang Matematika</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#dff7f1;
+    --bg2:#dcefff;
+    --teal:#0ea5a3;
+    --blue-deep:#0369a1;
+    --purple1:#8b5cf6;
+    --purple2:#6d28d9;
+    --green1:#34d399;
+    --green2:#059669;
+    --orange1:#fbbf24;
+    --orange2:#ea580c;
+    --red1:#f87171;
+    --red2:#dc2626;
+    --white:#ffffff;
+    --ink:#0f3d3a;
+    --muted:#5a7d78;
+    --shadow-soft: 0 10px 30px rgba(14,165,163,0.18);
+    --radius-lg: 34px;
+    --radius-md: 24px;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;height:100%;
+    font-family:'Nunito',sans-serif;
+    color:var(--ink);
+    -webkit-tap-highlight-color: transparent;
+    user-select:none;
+    overflow:hidden;
+  }
+  body{
+    background: radial-gradient(1200px 800px at 15% 10%, #e9fff7 0%, transparent 55%),
+                radial-gradient(1000px 700px at 85% 90%, #e3f4ff 0%, transparent 55%),
+                linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+    min-height:100vh;
+    position:relative;
+  }
+  h1,h2,h3{font-family:'Fredoka',sans-serif; margin:0;}
+
+  /* ambient floating blobs */
+  .blob{
+    position:fixed; border-radius:50%; filter:blur(2px); opacity:0.35; pointer-events:none; z-index:0;
+    animation: floaty 9s ease-in-out infinite;
+  }
+  .blob1{width:180px;height:180px; background:radial-gradient(circle,#7CE7CC,transparent 70%); top:-40px; left:-40px;}
+  .blob2{width:220px;height:220px; background:radial-gradient(circle,#8FD1FF,transparent 70%); bottom:-60px; right:-60px; animation-delay:2s;}
+  .blob3{width:140px;height:140px; background:radial-gradient(circle,#C9B6FF,transparent 70%); top:40%; right:-30px; animation-delay:4s;}
+  @keyframes floaty{ 0%,100%{transform:translateY(0px);} 50%{transform:translateY(-18px);} }
+
+  .app{ position:relative; z-index:1; width:100%; height:100vh; overflow:hidden;}
+  .page{
+    position:absolute; inset:0; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; opacity:0; transform:scale(0.98);
+    transition: opacity .35s ease, transform .35s ease;
+  }
+  .page.active{ display:flex; opacity:1; transform:scale(1); }
+
+  .top-back{
+    position:absolute; top:20px; left:20px;
+    background:var(--white); border:none; border-radius:999px;
+    padding:10px 20px 10px 16px; font-family:'Nunito',sans-serif; font-weight:800;
+    font-size:14px; color:var(--blue-deep); box-shadow: var(--shadow-soft);
+    display:flex; align-items:center; gap:6px; cursor:pointer;
+    transition: transform .15s ease;
+  }
+  .top-back:active{ transform:scale(0.94); }
+
+  /* ---------- PAGE 1 : MENU ---------- */
+  .title-wrap{ text-align:center; margin-bottom:8px;}
+  .badge-icon{ font-size:52px; filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12)); display:block; margin-bottom:4px;}
+  .main-title{
+    font-size:clamp(28px,6vw,44px); font-weight:700;
+    background: linear-gradient(135deg, var(--teal), var(--blue-deep));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:0.5px;
+  }
+  .sub-title{
+    margin-top:10px; font-size:clamp(15px,2.6vw,19px); font-weight:800; color:var(--muted);
+  }
+  .op-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+    margin-top:34px; width:100%; max-width:460px;
+  }
+  .op-btn{
+    border:none; border-radius:var(--radius-lg);
+    background: linear-gradient(135deg, var(--purple1), var(--purple2));
+    color:white; font-family:'Fredoka',sans-serif; font-weight:600;
+    padding:26px 10px; font-size:17px; cursor:pointer;
+    box-shadow: 0 14px 28px rgba(109,40,217,0.35), 0 0 0 rgba(139,92,246,0.0);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    transition: transform .15s ease, box-shadow .2s ease;
+  }
+  .op-btn .op-emoji{ font-size:34px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));}
+  .op-btn:active{ transform:scale(0.95); }
+  .op-btn:hover{ box-shadow: 0 16px 34px rgba(109,40,217,0.5), 0 0 26px rgba(167,139,250,0.55); transform:translateY(-2px);}
+
+  /* ---------- PAGE 2 : LEVEL ---------- */
+  .mode-pill{
+    margin-top:6px; background:var(--white); padding:8px 18px; border-radius:999px;
+    font-weight:800; color:var(--teal); font-size:14px; box-shadow: var(--shadow-soft);
+    display:flex; align-items:center; gap:8px;
+  }
+  .level-list{ margin-top:28px; display:flex; flex-direction:column; gap:16px; width:100%; max-width:420px;}
+  .lvl-btn{
+    border:none; border-radius:var(--radius-lg); cursor:pointer; text-align:left;
+    padding:18px 22px; color:white; display:flex; align-items:center; gap:16px;
+    font-family:'Nunito',sans-serif;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.14);
+    transition: transform .15s ease;
+  }
+  .lvl-btn:active{ transform:scale(0.96); }
+  .lvl-beginner{ background:linear-gradient(135deg, var(--green1), var(--green2)); }
+  .lvl-amateur{ background:linear-gradient(135deg, var(--orange1), var(--orange2)); }
+  .lvl-pro{ background:linear-gradient(135deg, var(--red1), var(--red2)); }
+  .lvl-icon{ font-size:30px; }
+  .lvl-text-title{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:19px; }
+  .lvl-text-sub{ font-size:13px; opacity:0.95; font-weight:700; }
+  .lvl-stars{ margin-left:auto; font-size:16px; }
+
+  /* ---------- PAGE 3 : GAMEPLAY ---------- */
+  .game-page{ justify-content:flex-start; padding-top:14px; }
+  .game-header{ text-align:center; margin-bottom:6px; }
+  .game-header .gt{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:18px; color:var(--blue-deep);}
+  .game-header .gm{ font-size:12px; font-weight:800; color:var(--muted); margin-top:2px;}
+
+  .arena{
+    display:grid; grid-template-columns: 1fr 150px 1fr;
+    gap:10px; width:100%; max-width:920px; align-items:end; flex:1; padding:6px 0;
+  }
+  .player-panel{
+    background:rgba(255,255,255,0.85); backdrop-filter: blur(6px);
+    border-radius: var(--radius-md); padding:14px; box-shadow: var(--shadow-soft);
+    display:flex; flex-direction:column; gap:8px; height:100%;
+  }
+  .player-panel.blue{ border:3px solid #60a5fa; }
+  .player-panel.red{ border:3px solid #fca5a5; }
+  .player-head{ display:flex; align-items:center; justify-content:space-between; }
+  .player-name{ font-family:'Fredoka',sans-serif; font-weight:600; font-size:14px; display:flex; align-items:center; gap:6px;}
+  .player-panel.blue .player-name{ color:#1d4ed8;}
+  .player-panel.red .player-name{ color:#b91c1c;}
+  .counter-pill{
+    font-size:11px; font-weight:800; background:#f1f5f9; padding:4px 10px; border-radius:999px; color:var(--ink);
+  }
+  .question-box{
+    background: linear-gradient(135deg,#f0fdfa,#e0f2fe);
+    border-radius:16px; padding:10px; text-align:center;
+    font-family:'Fredoka',sans-serif; font-weight:600; font-size:clamp(17px,3vw,22px);
+    color:var(--ink); box-shadow: inset 0 0 0 2px rgba(14,165,163,0.15);
+  }
+  .answer-box{
+    background:white; border-radius:14px; min-height:38px; text-align:center;
+    font-size:20px; font-weight:900; letter-spacing:2px; color:var(--blue-deep);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 2px #cbd5e1; transition: box-shadow .15s ease;
+  }
+  .answer-box.shake{ animation: shake .35s; box-shadow: inset 0 0 0 2px #ef4444; }
+  @keyframes shake{
+    0%,100%{transform:translateX(0);} 20%{transform:translateX(-6px);} 40%{transform:translateX(6px);} 60%{transform:translateX(-4px);} 80%{transform:translateX(4px);}
+  }
+  .keypad{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .key{
+    border:none; border-radius:12px; background:#eef2ff; color:var(--ink);
+    font-weight:900; font-size:16px; padding:9px 0; cursor:pointer; box-shadow:0 3px 0 #c7d2fe;
+    transition: transform .1s ease;
+  }
+  .key:active{ transform:translateY(2px); box-shadow:0 1px 0 #c7d2fe;}
+  .key.clear{ background:#fee2e2; color:#b91c1c; box-shadow:0 3px 0 #fca5a5;}
+  .key.go{ background:linear-gradient(135deg,#38bdf8,#0284c7); color:white; box-shadow:0 3px 0 #075985;}
+
+  /* poles */
+  .poles-wrap{ display:flex; justify-content:center; align-items:flex-end; height:100%; gap:10px; position:relative;}
+  .pole-col{ position:relative; width:64px; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end;}
+  .flag{ position:absolute; top:-2px; width:22px; height:16px; border-radius:2px; overflow:hidden; box-shadow:0 2px 4px rgba(0,0,0,0.25); }
+  .flag div{ height:50%; }
+  .flag .red{ background:#dc2626;}
+  .flag .white{ background:#ffffff;}
+  .flagpole{ position:absolute; top:-2px; width:2px; height:36px; background:#7c5a3a; left:50%; transform:translateX(-50%); }
+  .platform{
+    width:74px; height:16px; border-radius:10px; background:linear-gradient(180deg,#a16207,#78350f);
+    box-shadow:0 4px 8px rgba(0,0,0,0.25); position:relative; margin-bottom:0; z-index:3;
+  }
+  .prize{ position:absolute; top:14px; font-size:22px; filter:drop-shadow(0 3px 4px rgba(0,0,0,0.25)); animation: sway 2.4s ease-in-out infinite;}
+  .prize.p1{ left:-4px; animation-delay:0s;}
+  .prize.p2{ right:-4px; animation-delay:0.6s;}
+  @keyframes sway{ 0%,100%{ transform:rotate(-6deg);} 50%{ transform:rotate(6deg);} }
+  .trunk{
+    width:30px; flex:1; border-radius:10px;
+    background: repeating-linear-gradient(0deg, #22c55e 0px, #22c55e 10px, #16a34a 10px, #16a34a 20px);
+    box-shadow: inset -4px 0 8px rgba(0,0,0,0.15), 0 6px 10px rgba(0,0,0,0.12);
+    position:relative; overflow:visible;
+  }
+  .climber{
+    position:absolute; left:50%; transform:translate(-50%,50%); bottom:0%;
+    font-size:26px; transition: bottom 0.6s cubic-bezier(.34,1.56,.64,1);
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.3));
+  }
+  .climber .badge{
+    position:absolute; inset:-4px; border-radius:50%; z-index:-1; opacity:0.9;
+  }
+  .climber.blue .badge{ background:#93c5fd; }
+  .climber.red .badge{ background:#fca5a5; }
+
+  .footer-hint{
+    text-align:center; margin-top:10px; font-size:12.5px; font-weight:800; color:var(--muted);
+    background:rgba(255,255,255,0.7); padding:8px 16px; border-radius:999px;
+  }
+
+  /* ---------- PAGE 4 : END ---------- */
+  .end-emoji{ font-size:60px; margin-bottom:6px; animation: pop .6s ease;}
+  @keyframes pop{ 0%{transform:scale(0);} 70%{transform:scale(1.15);} 100%{transform:scale(1);} }
+  .win-title{ font-size:clamp(22px,5vw,32px); font-family:'Fredoka',sans-serif; font-weight:600; text-align:center;}
+  .win-title span{ background:linear-gradient(135deg,var(--teal),var(--blue-deep)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .win-sub{ margin-top:6px; color:var(--muted); font-weight:800; font-size:14px;}
+  .end-actions{ display:flex; gap:14px; margin-top:30px; }
+  .end-btn{
+    border:none; border-radius:999px; padding:14px 26px; font-weight:800; font-size:15px;
+    cursor:pointer; box-shadow: var(--shadow-soft); font-family:'Nunito',sans-serif;
+    transition: transform .15s ease;
+  }
+  .end-btn:active{ transform:scale(0.94);}
+  .btn-again{ background:linear-gradient(135deg,var(--teal),var(--blue-deep)); color:white;}
+  .btn-home{ background:white; color:var(--blue-deep); }
+
+  .confetti{ position:fixed; top:-20px; width:9px; height:14px; border-radius:2px; z-index:5; animation: fall linear forwards; }
+  @keyframes fall{ to{ transform: translateY(110vh) rotate(360deg); opacity:0.9; } }
+
+  @media (max-width:720px){
+    .arena{ grid-template-columns:1fr; grid-template-rows:auto auto auto; }
+    .poles-wrap{ height:130px; order:2; }
+    .player-panel{ order:1; }
+    .player-panel:last-child{ order:3; }
+    .keypad .key{ padding:12px 0; font-size:17px;}
+  }
+</style>
+</head>
+<body>
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<div class="app">
+
+  <!-- PAGE 1: PILIH OPERASI -->
+  <div class="page active" id="page-menu">
+    <button class="top-back" id="btnBackMenu">← Kembali</button>
+    <div class="title-wrap">
+      <span class="badge-icon">🏆</span>
+      <h1 class="main-title">Panjat Pinang Matematika</h1>
+      <div class="sub-title">Pilih Jenis Operasi</div>
+    </div>
+    <div class="op-grid">
+      <button class="op-btn" data-op="+" data-label="Penjumlahan"><span class="op-emoji">➕</span>Penjumlahan</button>
+      <button class="op-btn" data-op="-" data-label="Pengurangan"><span class="op-emoji">➖</span>Pengurangan</button>
+      <button class="op-btn" data-op="×" data-label="Perkalian"><span class="op-emoji">✖️</span>Perkalian</button>
+      <button class="op-btn" data-op="÷" data-label="Pembagian"><span class="op-emoji">➗</span>Pembagian</button>
+    </div>
+  </div>
+
+  <!-- PAGE 2: PILIH LEVEL -->
+  <div class="page" id="page-level">
+    <button class="top-back" id="btnBackLevel">← Kembali</button>
+    <div class="title-wrap">
+      <h2 class="main-title" style="font-size:clamp(24px,5vw,34px);">Pilih Level Kesulitan</h2>
+      <div class="mode-pill" id="modePill">Mode: -</div>
+    </div>
+    <div class="level-list">
+      <button class="lvl-btn lvl-beginner" data-level="beginner">
+        <span class="lvl-icon">🌱</span>
+        <span>
+          <div class="lvl-text-title">Beginner</div>
+          <div class="lvl-text-sub">1 Digit + 1 Digit</div>
+        </span>
+        <span class="lvl-stars">⭐</span>
+      </button>
+      <button class="lvl-btn lvl-amateur" data-level="amateur">
+        <span class="lvl-icon">🔥</span>
+        <span>
+          <div class="lvl-text-title">Amateur</div>
+          <div class="lvl-text-sub">1 Digit + 2 Digit (Mixed)</div>
+        </span>
+        <span class="lvl-stars">⭐⭐</span>
+      </button>
+      <button class="lvl-btn lvl-pro" data-level="pro">
+        <span class="lvl-icon">🚀</span>
+        <span>
+          <div class="lvl-text-title">Pro</div>
+          <div class="lvl-text-sub">2 Digit + 2 Digit</div>
+        </span>
+        <span class="lvl-stars">⭐⭐⭐</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PAGE 3: GAMEPLAY -->
+  <div class="page game-page" id="page-game">
+    <button class="top-back" id="btnBackGame">← Kembali</button>
+    <div class="game-header">
+      <div class="gt">🧗 Panjat Pinang Matematika</div>
+      <div class="gm" id="gameModeLabel">Penjumlahan · Beginner</div>
+    </div>
+
+    <div class="arena">
+      <!-- PLAYER A -->
+      <div class="player-panel blue">
+        <div class="player-head">
+          <div class="player-name">🔵 Pemain 1</div>
+          <div class="counter-pill" id="counterA">Benar: 0/7</div>
+        </div>
+        <div class="question-box" id="questionA">- + - = ?</div>
+        <div class="answer-box" id="answerA">&nbsp;</div>
+        <div class="keypad" id="keypadA"></div>
+      </div>
+
+      <!-- POLES -->
+      <div class="poles-wrap">
+        <div class="pole-col">
+          <div class="platform">
+            <div class="flagpole"></div>
+            <div class="flag"><div class="red"></div><div class="white"></div></div>
+            <div class="prize p1">👕</div>
+            <div class="prize p2">🎁</div>
+          </div>
+          <div class="trunk" id="trunkA">
+            <div class="climber blue" id="climberA"><div class="badge"></div>🧗‍♂️</div>
+          </div>
+        </div>
+        <div class="pole-col">
+          <div class="platform">
+            <div class="flagpole"></div>
+            <div class="flag"><div class="red"></div><div class="white"></div></div>
+            <div class="prize p1">🎸</div>
+            <div class="prize p2">⚽</div>
+          </div>
+          <div class="trunk" id="trunkB">
+            <div class="climber red" id="climberB"><div class="badge"></div>🧗‍♂️</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLAYER B -->
+      <div class="player-panel red">
+        <div class="player-head">
+          <div class="player-name">🔴 Pemain 2</div>
+          <div class="counter-pill" id="counterB">Benar: 0/7</div>
+        </div>
+        <div class="question-box" id="questionB">- + - = ?</div>
+        <div class="answer-box" id="answerB">&nbsp;</div>
+        <div class="keypad" id="keypadB"></div>
+      </div>
+    </div>
+
+    <div class="footer-hint">Jawab soal untuk memanjat tiang! (7 jawaban benar untuk menang)</div>
+  </div>
+
+  <!-- PAGE 4: END -->
+  <div class="page" id="page-end">
+    <div class="end-emoji">🎉</div>
+    <div class="win-title"><span id="winnerText">Pemain 1</span> Menang!</div>
+    <div class="win-sub">Berhasil mencapai puncak tiang panjat pinang</div>
+    <div class="end-actions">
+      <button class="end-btn btn-again" id="btnAgain">🔁 Main Lagi</button>
+      <button class="end-btn btn-home" id="btnHome">🏠 Home</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  const pages = {
+    menu: document.getElementById('page-menu'),
+    level: document.getElementById('page-level'),
+    game: document.getElementById('page-game'),
+    end: document.getElementById('page-end'),
+  };
+  function showPage(name){
+    Object.values(pages).forEach(p=>p.classList.remove('active'));
+    pages[name].classList.add('active');
+  }
+
+  let state = {
+    op: '+', opLabel: 'Penjumlahan', level: 'beginner', levelLabel:'Beginner',
+    winTarget: 7
+  };
+
+  const opNames = {'+':'Penjumlahan','-':'Pengurangan','×':'Perkalian','÷':'Pembagian'};
+  const levelNames = {beginner:'Beginner', amateur:'Amateur', pro:'Pro'};
+
+  // ---------- PAGE 1 -> PAGE 2 ----------
+  document.querySelectorAll('.op-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.op = btn.dataset.op;
+      state.opLabel = btn.dataset.label;
+      document.getElementById('modePill').textContent = 'Mode: ' + state.opLabel;
+      showPage('level');
+    });
+  });
+  document.getElementById('btnBackMenu').addEventListener('click', ()=>{ /* halaman awal */ });
+  document.getElementById('btnBackLevel').addEventListener('click', ()=> showPage('menu'));
+  document.getElementById('btnBackGame').addEventListener('click', ()=> showPage('level'));
+  document.getElementById('btnHome').addEventListener('click', ()=> showPage('menu'));
+
+  // ---------- PAGE 2 -> PAGE 3 ----------
+  document.querySelectorAll('.lvl-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      state.level = btn.dataset.level;
+      state.levelLabel = levelNames[state.level];
+      document.getElementById('gameModeLabel').textContent = state.opLabel + ' · ' + state.levelLabel;
+      startGame();
+      showPage('game');
+    });
+  });
+
+  document.getElementById('btnAgain').addEventListener('click', ()=>{
+    startGame();
+    showPage('game');
+  });
+
+  // ---------- GAME LOGIC ----------
+  function randInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  function generateQuestion(op, level){
+    let a,b,answer,question;
+    if(op==='+' || op==='-'){
+      if(level==='beginner'){ a=randInt(1,9); b=randInt(1,9); }
+      else if(level==='amateur'){
+        let one=randInt(1,9), two=randInt(10,99);
+        if(Math.random()<0.5){ a=one; b=two; } else { a=two; b=one; }
+      } else { a=randInt(10,99); b=randInt(10,99); }
+      if(op==='-'){ if(a<b){ [a,b]=[b,a]; } answer=a-b; question=a+' - '+b; }
+      else { answer=a+b; question=a+' + '+b; }
+    } else if(op==='×'){
+      if(level==='beginner'){ a=randInt(1,9); b=randInt(1,9); }
+      else if(level==='amateur'){
+        let one=randInt(1,9), two=randInt(10,20);
+        if(Math.random()<0.5){ a=one; b=two; } else { a=two; b=one; }
+      } else { a=randInt(10,20); b=randInt(10,20); }
+      answer=a*b; question=a+' × '+b;
+    } else { // division
+      let divisor,quotient;
+      if(level==='beginner'){ divisor=randInt(1,9); quotient=randInt(1,9); }
+      else if(level==='amateur'){
+        if(Math.random()<0.5){ divisor=randInt(1,9); quotient=randInt(10,20); }
+        else { divisor=randInt(10,20); quotient=randInt(1,9); }
+      } else { divisor=randInt(10,20); quotient=randInt(10,20); }
+      let dividend = divisor*quotient;
+      answer=quotient; question=dividend+' ÷ '+divisor;
+    }
+    return { question: question+' = ?', answer };
+  }
+
+  function makePlayer(id, colorClass){
+    return {
+      id, colorClass,
+      question:null, answer:0, input:'',
+      correct:0,
+      elQ: document.getElementById('question'+id),
+      elA: document.getElementById('answer'+id),
+      elCounter: document.getElementById('counter'+id),
+      elKeypad: document.getElementById('keypad'+id),
+      elClimber: document.getElementById('climber'+id),
+      elTrunk: document.getElementById('trunk'+id),
+    };
+  }
+
+  let players = { A: makePlayer('A'), B: makePlayer('B') };
+  let gameOver = false;
+
+  function buildKeypad(player){
+    const layout = ['1','2','3','4','5','6','7','8','9','C','0','GO'];
+    player.elKeypad.innerHTML = '';
+    layout.forEach(key=>{
+      const b = document.createElement('button');
+      b.className = 'key' + (key==='C' ? ' clear' : '') + (key==='GO' ? ' go' : '');
+      b.textContent = key==='GO' ? 'Go' : key;
+      b.addEventListener('click', ()=> handleKey(player, key));
+      player.elKeypad.appendChild(b);
+    });
+  }
+
+  function handleKey(player, key){
+    if(gameOver) return;
+    if(key==='C'){ player.input=''; }
+    else if(key==='GO'){ submitAnswer(player); return; }
+    else { if(player.input.length<3) player.input += key; }
+    player.elA.textContent = player.input.length ? player.input : '\u00A0';
+  }
+
+  function submitAnswer(player){
+    if(gameOver) return;
+    if(player.input === '') return;
+    const val = parseInt(player.input, 10);
+    if(val === player.answer){
+      player.correct++;
+      player.elCounter.textContent = 'Benar: ' + player.correct + '/' + state.winTarget;
+      updateClimb(player);
+      if(player.correct >= state.winTarget){
+        gameOver = true;
+        setTimeout(()=> finishGame(player.id), 500);
+      } else {
+        newQuestion(player);
+      }
+    } else {
+      player.elA.classList.remove('shake'); void player.elA.offsetWidth;
+      player.elA.classList.add('shake');
+    }
+    player.input='';
+    setTimeout(()=>{ player.elA.textContent = player.input.length? player.input : '\u00A0'; }, 250);
+  }
+
+  function updateClimb(player){
+    const pct = Math.min(100, (player.correct/state.winTarget)*88 + 4);
+    player.elClimber.style.bottom = pct + '%';
+  }
+
+  function newQuestion(player){
+    const q = generateQuestion(state.op, state.level);
+    player.question = q.question;
+    player.answer = q.answer;
+    player.elQ.textContent = q.question;
+  }
+
+  function startGame(){
+    gameOver = false;
+    ['A','B'].forEach(id=>{
+      const p = players[id];
+      p.correct = 0;
+      p.input = '';
+      p.elA.classList.remove('shake');
+      p.elA.textContent = '\u00A0';
+      p.elCounter.textContent = 'Benar: 0/' + state.winTarget;
+      p.elClimber.style.bottom = '0%';
+      buildKeypad(p);
+      newQuestion(p);
+    });
+  }
+
+  function finishGame(winnerId){
+    const label = winnerId==='A' ? 'Pemain 1' : 'Pemain 2';
+    document.getElementById('winnerText').textContent = label;
+    showPage('end');
+    launchConfetti();
+  }
+
+  function launchConfetti(){
+    const colors = ['#34d399','#60a5fa','#fbbf24','#f87171','#a78bfa','#38bdf8'];
+    for(let i=0;i<50;i++){
+      const c = document.createElement('div');
+      c.className='confetti';
+      c.style.left = Math.random()*100+'vw';
+      c.style.background = colors[Math.floor(Math.random()*colors.length)];
+      c.style.animationDuration = (2.5+Math.random()*2)+'s';
+      c.style.animationDelay = (Math.random()*0.6)+'s';
+      c.style.borderRadius = Math.random()<0.5 ? '50%':'2px';
+      document.body.appendChild(c);
+      setTimeout(()=> c.remove(), 5200);
+    }
+  }
+
+  // init player objects properly (elements exist now)
+  players.A = makePlayer('A');
+  players.B = makePlayer('B');
+
+})();
+</script>
+</body>
+</html>
